@@ -1,17 +1,20 @@
 <template>
   <a-row class="container">
-    <a-row type="flex" justify="center" align="middle" class="profile">
-      <a-col :span="1">
-        <a-icon type="tags" style="font-size: 40px; color: #5c6bc0" />
-      </a-col>
-      <a-col :span="18">
-        <h2>{{ teacherName }}</h2>
-        <span class="account">账号：{{ uid }}</span>
-        <span>工号：{{ workNumber }}</span>
-      </a-col>
-      <a-col :span="3">
-        <a-button icon="calendar" size="large">我的课表</a-button>
-      </a-col>
+    <a-row type="flex" justify="center" align="middle" class="profile clearfix">
+      <a-upload
+        list-type="picture-card"
+        :file-list="fileList"
+        @preview="handlePreview"
+        @change="handleChange"
+      >
+        <div v-if="fileList.length < 8">
+          <a-icon type="plus" />
+          <div class="ant-upload-text">Upload</div>
+        </div>
+      </a-upload>
+      <a-modal v-model="previewVisible" :footer="null">
+        <img alt="example" style="width: 100%" :src="previewImage" />
+      </a-modal>
     </a-row>
     <a-row class="content">
       <a-row>
@@ -39,8 +42,18 @@ export default {
       teacherName: "李师",
       uid: "201501245789",
       workNumber: "201501245789",
-      fileList: [],
       curMenus: ["Resource"],
+      previewVisible: false,
+      previewImage: "",
+      fileList: [
+        {
+          uid: "-1",
+          name: "image.png",
+          status: "done",
+          url:
+            "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+        },
+      ],
     };
   },
   methods: {
@@ -67,10 +80,32 @@ export default {
       // fileUploader(this.fileList, url, "", config, params);
     },
     handleClick() {},
+    async handlePreview(file = "") {
+      if (!file.url && !file.preview) {
+        //   file.preview = await getBase64(file.originFileObj);
+      }
+      // this.previewImage = file.url || file.preview;
+      // this.previewVisible = true;
+    },
+    handleChange({ fileList }) {
+      this.fileList = fileList;
+    },
   },
   created() {},
 };
 </script>
+
+<style>
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
+}
+</style>
 
 <style scoped>
 .container {
