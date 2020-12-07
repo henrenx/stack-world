@@ -1,26 +1,58 @@
 <template>
   <a-row class="container">
-    <a-row type="flex" justify="center" align="middle" class="profile clearfix">
-      <a-upload
-        list-type="picture-card"
-        :file-list="fileList"
-        @preview="handlePreview"
-        @change="handleChange"
-      >
-        <div v-if="fileList.length < 8">
-          <a-icon type="plus" />
-          <div class="ant-upload-text">Upload</div>
-        </div>
-      </a-upload>
-      <a-modal v-model="previewVisible" :footer="null">
-        <img alt="example" style="width: 100%" :src="previewImage" />
-      </a-modal>
+    <a-row type="flex" align="middle" class="profile clearfix">
+      <a-col :span="4">
+        <img
+          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+          alt="课程封面"
+          class="img-cover"
+        />
+      </a-col>
+      <a-col :span="5">
+        <a-row type="flex" justify="space-between" align="top">
+          <h2>{{ courseName }}</h2>
+          <span style="line-height: 2.5em">课程编码{{ courseCode }}</span>
+        </a-row>
+        <a-row type="flex" justify="space-between" align="top">
+          <p>课程简介：{{ courseDesc }}</p>
+          <a href="#" @click="editDesc">
+            {{ showDescEditor ? "保存简介" : "编辑简介" }}
+          </a>
+        </a-row>
+        <a-row type="flex" justify="space-between" align="top">
+          <label for="progress">上课进度：</label>
+          <a-progress
+            :percent="30"
+            size="small"
+            style="width: 75%"
+          ></a-progress>
+        </a-row>
+      </a-col>
+      <a-col :span="6" :push="1">
+        <a-input
+          v-if="showDescEditor"
+          type="textarea"
+          :auto-size="{ minRows: 5, maxRows: 5 }"
+          v-model="courseDesc"
+          placeholder="请输入课程简介！"
+        ></a-input>
+      </a-col>
+      <a-col :span="6"></a-col>
+      <a-col :span="2" :push="1">
+        <a-row type="flex" align="middle" justify="center">
+          <h3>共{{ courseNums }}节课</h3>
+          <a-button type="primary" size="large">开始备课</a-button>
+        </a-row>
+      </a-col>
     </a-row>
     <a-row class="content">
       <a-row>
         <a-col :span="3">
           <a-menu style="width: 150px" @click="handleClick" v-model="curMenus">
+            <a-menu-item key="Knowledge">课程知识点</a-menu-item>
             <a-menu-item key="Resource">课程资源</a-menu-item>
+            <a-menu-item key="Question">课程试题</a-menu-item>
+            <a-menu-item key="Class">课程班级</a-menu-item>
           </a-menu>
         </a-col>
         <a-col :span="21">
@@ -32,18 +64,25 @@
 </template>
 
 <script>
-// import fileUploader from "@/utils/expressFileUploader";
+import Class from "../class/Class";
 import Resource from "../resource/Resource";
+import Question from "../question/Question";
+import Knowledge from "../knowledge/Knowledge";
 
 export default {
-  components: { Resource },
+  components: { Resource, Question, Knowledge, Class },
   data() {
     return {
+      courseName: "计算机基础",
+      courseCode: "8HB4GC3P0",
+      courseNums: 3,
+      courseDesc: "暂无简介",
       teacherName: "李师",
       uid: "201501245789",
       workNumber: "201501245789",
       curMenus: ["Resource"],
       previewVisible: false,
+      showDescEditor: false,
       previewImage: "",
       fileList: [
         {
@@ -90,31 +129,29 @@ export default {
     handleChange({ fileList }) {
       this.fileList = fileList;
     },
+    editDesc() {
+      this.showDescEditor = !this.showDescEditor;
+      // submit modification to back end;
+    },
   },
   created() {},
 };
 </script>
 
-<style>
-.ant-upload-select-picture-card i {
-  font-size: 32px;
-  color: #999;
-}
-
-.ant-upload-select-picture-card .ant-upload-text {
-  margin-top: 8px;
-  color: #666;
-}
-</style>
-
 <style scoped>
+.img-cover {
+  cursor: pointer;
+  width: 180px;
+  height: 120px;
+}
+
 .container {
   background: #f0f2f5;
   padding: 15px 20px 0;
 }
 
 .profile {
-  padding: 20px;
+  padding: 10px;
 }
 
 .profile,
