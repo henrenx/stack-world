@@ -94,7 +94,7 @@ export default {
             return;
           }
           localStorage.setItem("tk", token);
-          axios.defaults.headers.common["Authorization"] = token;
+          axios.defaults.headers.common["Authorization"] = "BearToken： " + token;
           const navigateUrl = this.updatePublicVuexData(data.data);
           this.$router.push(navigateUrl);
         })
