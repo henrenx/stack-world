@@ -39,6 +39,7 @@ const TeacherRouter = () => import("@/components/teacher/index/TeacherRouter");
 const TeacherCourse = () => import("@/components/teacher/course/Index");
 const TeacherCourseDetail = () =>
   import("@/components/teacher/coursedetail/index/CourseDetail");
+const TeacherPreCourse = () => import("@/components/teacher/precourse/PreCourse");
 
 // -----------------------  student router  -------------------------------
 const landPage = () => import("@/pages/LandingPage.vue");
@@ -179,6 +180,12 @@ export const routes = [
         component: TeacherCourseDetail,
         props: (route) => ({ query: route.query.courseId }),
       },
+      {
+        path: "precourse",
+        name: "teacher_precourse",
+        component: TeacherPreCourse,
+        props: (route) => ({ query: route.query.courseId })
+      }
     ],
   },
   {
