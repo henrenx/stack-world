@@ -58,8 +58,9 @@ async function updateAccessConfig(apiUrl, body, callback) {
         region: DEFAULT_REGION,
       });
       DEFAULT_PARAMS.Key = data.fileID;
+      return new AWS.S3();
     }
-    return new AWS.S3();
+    throw "credentials syntax error";
   } catch (error) {
     callback(error);
   }
@@ -109,7 +110,11 @@ function updateUploadParams(file, filePath, that, params) {
  */
 async function uploadFile([file], config = {}, params = {}) {
   config = { ...DEFAULT_CONFIG, ...config };
-  const S3Instance = await updateAccessConfig(config.apiUrl, config.accessErrCallback);
+  const S3Instance = await updateAccessConfig(
+    config.apiUrl,
+    config.body,
+    config.accessErrCallback
+  );
   params = updateUploadParams(file, config.filePath, config.that, params);
   if (!S3Instance) return;
   const request = S3Instance.putObject(params, (err, data) => {
@@ -120,9 +125,11 @@ async function uploadFile([file], config = {}, params = {}) {
     config.successCallback();
     console.info("file upload successfully!");
   });
-  // TODO 进度回调函数暂时无效，在解决中，不影响接口。
   config.progressCallback &&
-    request.on("httpUploadProgress", config.progressCallback);
+    request.on("httpUploadProgress", (response) => {
+      const percent = ((response.loaded * 100) / response.total).toFixed(0);
+      config.progressCallback(percent);
+    });
 }
 
 export default uploadFile;

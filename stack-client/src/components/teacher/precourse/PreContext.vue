@@ -2,28 +2,24 @@
   <a-row style="height: 100%">
     <a-row class="box">
       <a-row
-        id="components-slider-demo-mark"
-        style="height: 20%"
+        justify="space-between"
         type="flex"
         align="middle"
+        style="padding: 20px"
       >
-        <a-col :span="15" :offset="2">
+        <a-col :span="24" @contextmenu.prevent="deletemarks">
           <a-slider
             :marks="marks"
             v-model="slidervalue"
             :max="50"
             @afterChange="afterChange"
+            ref="slider"
           />
-        </a-col>
-        <a-col :span="5" :offset="1">
-          <a-button type="primary" @click="addmarks"> 添加事件 </a-button>
-          &nbsp;&nbsp;
-          <a-button type="primary" @click="deletemarks"> 删除事件 </a-button>
         </a-col>
       </a-row>
       <br />
       <br />
-      <a-row type="flex" justify="center" align="middle" class="contextstyle">
+      <a-row class="contextstyle">
         <a-empty :description="false" v-if="isempty" />
         <component :is="componentId" v-else></component>
       </a-row>
@@ -32,6 +28,7 @@
       title="选择事件"
       v-model="modalvisible"
       @ok="handleOk"
+      @cancel="modalClose"
       :zIndex="10001"
     >
       <div>
@@ -68,6 +65,7 @@ import PreVote from "./preselect/PreVote.vue";
 import PreSign from "./preselect/PreSign.vue";
 import PreDocument from "./preselect/PreDocument.vue";
 import PreTest from "./preselect/PreTest.vue";
+
 export default {
   components: {
     PreTeaching,
@@ -106,10 +104,12 @@ export default {
       let marksvalue = this.marks[value];
       if (marksvalue) {
         let findmarks = marksvalue.label.children[2].text;
-        let result=Object.keys(this.event).find(item=>{
-          return this.event[item]===findmarks;
-        })
+        let result = Object.keys(this.event).find((item) => {
+          return this.event[item] === findmarks;
+        });
         this.componentId = result;
+      } else {
+        this.modalvisible = true;
       }
     },
     addmarks() {
@@ -127,7 +127,7 @@ export default {
         okType: "danger",
         cancelText: "取消",
         zIndex: 10001,
-        onOk() {
+        onOk() {          
           delete that.marks[that.slidervalue];
         },
         onCancel() {
@@ -137,6 +137,11 @@ export default {
     },
     callback(val) {
       console.log(val);
+    },
+    removeEvent() {},
+    modalClose() {
+      this.modalvisible = false;
+      this.$refs.slider.blur();
     },
     handleOk() {
       const value = this.slidervalue + "分钟";
@@ -155,21 +160,22 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.event-btn .ant-btn {
+  margin: 0 5px;
+}
+
 .box {
   background: #fff;
-  padding: 10px;
-  margin: 10px;
-  height: calc(100% - 20px);
+  /* height: calc(100% - 20px); */
+  margin-top: 10px;
 }
 
 .contextstyle {
   height: 65%;
-  width: 90%;
-  /* background: #f0f2f5; */
-  /* border:2px solid #ccc; */
-  margin-left: 5%;
+  padding: 20px;
 }
+
 .try {
   width: 100%;
   height: 100%;
@@ -180,10 +186,5 @@ export default {
   background: #fff;
   height: 100%;
   width: 100%;
-}
-
-.setcard {
-  width: 90%;
-  height: 100%;
 }
 </style>

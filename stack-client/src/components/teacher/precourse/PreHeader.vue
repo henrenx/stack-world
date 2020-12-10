@@ -1,6 +1,11 @@
 <template>
-  <a-row type="flex" justify="start" align="middle" style="height: 100%">
-    <a-col :span="15" :offset="2">
+  <a-row
+    type="flex"
+    justify="space-between"
+    align="middle"
+    style="padding: 20px"
+  >
+    <a-col :span="13">
       <a-form-model
         layout="inline"
         :model="form"
@@ -20,12 +25,16 @@
         </a-form-model-item>
       </a-form-model>
     </a-col>
-    <a-col :span="6" :offset="1">
-      <a-button type="primary" @click="save"> 保存 </a-button>
-      &nbsp;&nbsp;&nbsp;
-      <a-button type="primary" @click="pptx"> 上传 </a-button>
-      &nbsp;&nbsp;&nbsp;
-      <a-button type="primary" :disabled="true" @click="publish"> 发布 </a-button>
+    <a-col :span="11">
+      <a-row type="flex" justify="end" class="header-btn">
+        <a-button type="primary" @click="save"> 保存 </a-button>
+        &nbsp;&nbsp;
+        <a-button type="primary" @click="pptx"> 上传 </a-button>
+        &nbsp;&nbsp;
+        <a-button type="primary" :disabled="true" @click="publish">
+          发布
+        </a-button>
+      </a-row>
     </a-col>
   </a-row>
 </template>
@@ -33,7 +42,7 @@
 export default {
   data() {
     return {
-      labelCol: { span: 8 },
+      labelCol: { span: 6 },
       wrapperCol: { span: 15 },
       form: {
         desc1: "",
@@ -48,17 +57,15 @@ export default {
     onChange(e) {
       console.log(e);
     },
-    save(){
-
-    },
-    pptx(){
-
-    },
-    publish(){
-
-    }
+    save() {},
+    pptx() {},
+    publish() {},
   },
 };
 </script>
-<style>
+
+<style scoped>
+.header-btn .ant-btn {
+  margin: 0 5px;
+}
 </style>
