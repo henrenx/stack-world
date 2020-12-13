@@ -1,6 +1,6 @@
 const IndexPage = () => import("@/components/index/IndexPage");
 
-// supervisor router
+// ---------------------  supervisor router  ------------------------------
 const SupervisorRouter = () =>
   import("@/components/supervisor/index/SupervisorRouter");
 const SupervisorAdmin = () =>
@@ -8,7 +8,7 @@ const SupervisorAdmin = () =>
 const SupervisorSchool = () =>
   import("@/components/supervisor/school/SchoolManagement");
 
-// admin router
+// ---------------------  admin router  -----------------------------------
 const AdminRouter = () => import("@/components/admin/index/AdminRouter");
 const AdminResource = () =>
   import("@/components/admin/resource/ResourceManagement");
@@ -34,13 +34,14 @@ const AdminInstallation = () =>
   import("@/components/admin/device/installation/Installation");
 const AdminUpgrade = () => import("@/components/admin/device/upgrade/Upgrade");
 
-// teacher router
+// ------------------------  teacher router  ------------------------------
 const TeacherRouter = () => import("@/components/teacher/index/TeacherRouter");
 const TeacherCourse = () => import("@/components/teacher/course/Index");
 const TeacherCourseDetail = () =>
   import("@/components/teacher/coursedetail/index/CourseDetail");
+const TeacherPreCourse = () => import("@/components/teacher/precourse/PreCourse");
 
-// student router
+// -----------------------  student router  -------------------------------
 const landPage = () => import("@/pages/LandingPage.vue");
 const studentHome = () => import("@/pages/student/StudentHomePage.vue");
 const studentNavigator = () =>
@@ -68,6 +69,16 @@ const questionnaire = () =>
 const vote = () => import("@/pages/student/course/class/Vote.vue");
 const test = () => import("@/pages/student/course/class/Test.vue");
 const file = () => import("@/pages/student/course/class/File.vue");
+
+// ----------------  interaction router --------------------------
+const Interaction = () => import("@/components/teacher/interaction/Index");
+const InteractionVote = () => import("@/components/teacher/interaction/Vote");
+const InteractionPick = () => import("@/components/teacher/interaction/Pick");
+const InteractionRace = () => import("@/components/teacher/interaction/Race");
+const InteractionSign = () => import("@/components/teacher/interaction/Sign");
+const InteractionTest = () => import("@/components/teacher/interaction/Test");
+const InteractionFile = () => import("@/components/teacher/interaction/File");
+const InteractionQues = () => import("@/components/teacher/interaction/Ques");
 
 export const routes = [
   {
@@ -169,6 +180,12 @@ export const routes = [
         component: TeacherCourseDetail,
         props: (route) => ({ query: route.query.courseId }),
       },
+      {
+        path: "precourse",
+        name: "teacher_precourse",
+        component: TeacherPreCourse,
+        props: (route) => ({ query: route.query.courseId })
+      }
     ],
   },
   {
@@ -253,6 +270,20 @@ export const routes = [
         path: "message",
         component: message,
       },
+    ],
+  },
+  {
+    path: "/interaction",
+    name: "interaction",
+    component: Interaction,
+    children: [
+      { path: "vote", component: InteractionVote, name: "interaction_vote" },
+      { path: "pick", component: InteractionPick, name: "interaction_pick" },
+      { path: "race", component: InteractionRace, name: "interaction_race" },
+      { path: "sign", component: InteractionSign, name: "interaction_sign" },
+      { path: "test", component: InteractionTest, name: "interaction_test" },
+      { path: "file", component: InteractionFile, name: "interaction_file" },
+      { path: "ques", component: InteractionQues, name: "interaction_ques" },
     ],
   },
 ];

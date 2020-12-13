@@ -93,7 +93,8 @@ export default {
             this.errorTipShow = true;
             return;
           }
-          axios.defaults.headers.common["Authorization"] = token;
+          localStorage.setItem("tk", token);
+          axios.defaults.headers.common["Authorization"] = "Bearer " + token;
           const navigateUrl = this.updatePublicVuexData(data.data);
           this.$router.push(navigateUrl);
         })
