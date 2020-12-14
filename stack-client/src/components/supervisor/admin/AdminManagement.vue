@@ -1,18 +1,20 @@
 <template>
   <div>
-    <a-row style="margin:30px">
+    <a-row style="margin: 30px">
       <a-col :span="4">
-        <a-select v-model="school" style="width: 100%">
+        <a-select v-model="school" @change="changeInfo" style="width: 100%">
           <a-select-option
-            v-for="(item,index) in schoolList"
+            v-for="(item, index) in schoolList"
             :key="index"
-            :value="item.schoolKey"
-          >{{item.schoolName}}</a-select-option>
+            :value="item.schoolName"
+            >{{ item.schoolName }}</a-select-option
+          >
         </a-select>
       </a-col>
-      <a-col :span="4" :push="16">
-        <a-button type="primary" @click="addAdmin">添加管理</a-button>
-        <a-button type="primary" style="margin-left:10px;" @click="disabledAdmin">冻结管理</a-button>
+      <a-col :span="4" :push="18">
+        <a-button type="primary" @click="addAdmin" v-show="orgName"
+          >添加管理</a-button
+        >
       </a-col>
     </a-row>
     <a-modal
@@ -28,126 +30,192 @@
         :label-col="labelCol"
         :wrapper-col="wrapperCol"
       >
-        <a-form-model-item label="昵称" prop="userNickname">
-          <a-input placeholder="请输入昵称" v-model="addUserInfo.userNickname"></a-input>
+        <a-form-model-item label="昵称" prop="name">
+          <a-input
+            placeholder="请输入昵称"
+            v-model="addUserInfo.name"
+          ></a-input>
         </a-form-model-item>
-        <a-form-model-item label="邮箱" prop="userEmail">
-          <a-input placeholder="请输入邮箱" v-model="addUserInfo.userEmail"></a-input>
+        <a-form-model-item label="邮箱" prop="email">
+          <a-input
+            placeholder="请输入邮箱"
+            v-model="addUserInfo.email"
+          ></a-input>
         </a-form-model-item>
       </a-form-model>
     </a-modal>
-    <a-row style="margin:30px">
-      <a-col :span="6" v-for="(item,index) in userInfoList" :key="index">
+    <a-row style="margin: 30px">
+      <a-col :span="6" v-for="(item, index) in userInfoList" :key="index">
         <a-card
           hoverable
-          style="width: 300px;margin-bottom:10px;justify-content:space-around;"
+          style="
+            width: 300px;
+            margin-bottom: 10px;
+            justify-content: space-around;
+          "
           align="center"
         >
-          <a-avatar style="backgroundColor:#87d068" :size="64" icon="user" src />
-          <a-card-meta :description="item.userNickname" class="card_info"></a-card-meta>
-          <a-card-meta :description="item.userEmail"></a-card-meta>
+          <a-avatar :size="64" icon="user" src id="icon" />
+          <a-card-meta :description="item.name" class="card_info"></a-card-meta>
+          <a-card-meta :description="item.email"></a-card-meta>
+          <template slot="actions" class="ant-card-actions">
+            <a-button type="link" block @click="newPassword(item._id)" 
+              >重置密码</a-button
+            >
+            <a-button type="link" block @click="changeActive(item._id)">{{
+              item.active ? "冻结管理" : "激活管理"
+            }}</a-button>
+          </template>
         </a-card>
       </a-col>
     </a-row>
   </div>
 </template>
-
 <script>
+import axios from "@/utils/axios";
 export default {
   data() {
     return {
       school: "请选择学校",
+      orgName: "",
       visible: false,
       confirmLoading: false,
       labelCol: { span: 8 },
       wrapperCol: { span: 10 },
       rules: {
-        userNickname: [
+        name: [
           {
             required: true,
             min: 1,
             message: "昵称最少2个字",
           },
         ],
-        userEmail: [{ required: true, message: "邮箱不能为空" }],
+        email: [{ required: true, message: "邮箱不能为空" }],
       },
       addUserInfo: {
-        userNickname: "",
-        userEmail: "",
+        name: "",
+        email: "",
       },
       schoolList: [
         {
-          schoolKey: "snnu",
+          schoolId: "snnu",
           schoolName: "陕西师范大学",
-        },
-        {
-          schoolKey: "xiy",
-          schoolName: "西安邮电大学",
-        },
-        {
-          schoolKey: "xw",
-          schoolName: "西安外国语学院",
-        },
-        {
-          schoolKey: "ca",
-          schoolName: "长安大学",
         },
       ],
       userInfoList: [
         {
-          userNickname: "青空",
-          userEmail: "2756878164@qq.com",
-        },
-        {
-          userNickname: "qingKong",
-          userEmail: "2756878164@qq.com",
-        },
-        {
-          userNickname: "qingKong",
-          userEmail: "2756878164@qq.com",
-        },
-        {
-          userNickname: "qingKong",
-          userEmail: "2756878164@qq.com",
-        },
-        {
-          userNickname: "qingKong",
-          userEmail: "2756878164@qq.com",
+          _id: "123",
+          name: "青空",
+          email: "2756878164@qq.com",
+          active: false,
         },
       ],
     };
   },
+  mounted() {
+    this.getSchool();
+  },
   methods: {
-    onClick(e) {
-      console.log(e.item.$slots.default[0].elm.data);
-      this.school = e.item.$slots.default[0].elm.data;
+    newPassword(value) {
+      console.log(value);
+      // let that=this;
+      // axios.("")
+    },
+    changeActive(value) {
+      console.log(value);
+    },
+    changeInfo(value) {
+      // console.log(value);
+
+      let that = this;
+      this.userInfoList = [];
+      axios
+        .get("/pc/v1/users", {
+          params: {
+            org_name: value,
+            role: "orgAdmin",
+          },
+        })
+        .then(
+          function (res) {
+            console.log(res.data.data);
+            let data = res.data.data.users;
+            that.userInfoList = data;
+          },
+          function (err) {
+            console.log(err);
+          }
+        );
+      this.orgName = value;
+    },
+    getSchool() {
+      let that = this;
+      this.schoolList = [];
+      axios.get("/pc/v1/organizations").then(
+        function (res) {
+          // console.log(res);
+          let list = res.data.data.organizations;
+          // console.log(list);
+          for (var item of list) {
+            that.schoolList.push({
+              schoolId: item.id,
+              schoolName: item.organizationName,
+            });
+          }
+        },
+        function (err) {
+          console.log(err);
+        }
+      );
+      // console.log(this.$store.super);
+      // console.log(this.schoolList);
     },
 
     addAdmin() {
-      console.log("addAdmin");
+      // console.log("addAdmin");
       this.visible = true;
     },
     disabledAdmin() {
       console.log("disabledAdmin");
+      document.getElementById("icon").style.background = "#CCCCCC";
     },
 
     handleOk() {
-      console.log("Clicked ok button");
-      // console.log(this.addUserInfo);
-      let Nickname = this.addUserInfo.userNickname;
-      let Email = this.addUserInfo.userEmail;
-      let user = {
-        userNickname: Nickname,
-        userEmail: Email,
+      let that = this;
+      let name = this.addUserInfo.name;
+      let email = this.addUserInfo.email;
+      let org_name = this.orgName;
+
+      let admin = {
+        name: name,
+        email: email,
+        password: "12345678",
+        passwordConfirm: "12345678",
+        org_name: org_name,
+        role: "orgAdmin",
       };
-      this.userInfoList.push(user);
+
+      axios.post("/pc/v1/users/signup", admin).then(
+        function (res) {
+          console.log(res);
+          if (res.status === "scccess") {
+            that.$message.success("添加成功");
+          }
+        },
+        function (err) {
+          console.log(err);
+          that.$message.error("添加失败");
+        }
+      );
+
+      // this.userInfoList.push(user);
       // console.log(this.userInfoList);
       this.confirmLoading = true;
       setTimeout(() => {
         this.visible = false;
         this.confirmLoading = false;
-        this.addUserInfo.userNickname = "";
-        this.addUserInfo.userEmail = "";
+        this.addUserInfo.name = "";
+        this.addUserInfo.email = "";
       }, 2000);
     },
     handleCancel() {
@@ -161,5 +229,9 @@ export default {
 <style>
 .card_info {
   margin: 10px;
+}
+
+#icon {
+  background-color: #1da57a;
 }
 </style>
