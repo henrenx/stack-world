@@ -1,116 +1,32 @@
 const mongoose = require('mongoose');
+const uuid = require("uuid");
 
-const courseSchema = new mongoose.Schema(
-  {
-    announcement: {
-      type: String,
-      default: '本课程暂无公告',
+var courseSchema = mongoose.Schema({
+    _id: {
+        type: String,
+        required: [true,'you must tell us your course_id'],
+        default:uuid.v1,
     },
-    creatorId: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
-      required: [true, 'course must have a creatorId'],
+    name: {
+        type: String,
+        required: [true,'you must tell us your course_name'],
     },
-    chapterCounter: {
-      type: Number,
-      // required: [true, 'A course must have a chapterNumber'],
-      default: 0,
+    org_name: {  
+        type: String,
+        //ref: 'Org',
     },
+    subOrg_name:{ 
+        type: String,
+         //ref: 'SubOrg',
+    },
+    major_name: {  
+        type: String,
+        //ref: 'Major', 
+    }
+   
+},{_id:false})
 
-    description: {
-      type: String,
-      required: [true, 'A course must have a description'],
-    },
-    duration: {
-      type: Number,
-    },
-    imageUrl: {
-      type: String,
-      required: [true, 'A course must have a imageUrl'],
-    },
-    // isFavorite: {
-    //   type: Boolean,
-    //   default: false,
-    // },
-    lessonCount: {
-      type: String,
-      // required: [true, 'A course must have a lessonCount'],
-      default: 0,
-    },
-    price: {
-      type: Number,
-      required: [true, 'A course must have a price'],
-    },
-    rating: {
-      type: Number,
-      default: 4.5,
-    },
-    status: {
-      type: String,
-      default: 'pending',
-      emun: ['pending', 'finish'],
-    },
-    title: {
-      type: String,
-      required: [true, 'A course must have a name'],
-      unique: true,
-    },
-    tag: [
-      {
-        type: {
-          type: String,
-          default: 'SOLD',
-          enum: ['SOLD', 'SNNU'],
-        },
-      },
-    ],
-    chapters: [
-      {
-        editFlag: Boolean,
-        chapterName: String,
-        chapterIndex: Number,
-        chapterDuration: Number,
-        lessons: [
-          {
-            editFlag: Boolean,
-            lessonName: String,
-            lessonIndex: Number,
-            lessonDuration: Number,
-            lessonParentDuration: Number,
-            resources: [
-              {
-                type: mongoose.Schema.ObjectId,
-                ref: 'Resource',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
 
-  {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
-);
+var Course = mongoose.model('Course',courseSchema)
 
-// virtual populate
-courseSchema.virtual('reviews', {
-  ref: 'Review',
-  foreignField: 'course',
-  localField: '_id',
-});
-
-// virtual populate
-// courseSchema.virtual('registedUsers', {
-//   type: 'ObjectId',
-//   ref: 'User',
-//   foreignField: 'buyCourses',
-//   localField: '_id',
-//   justOne: true,
-// });
-
-const Course = mongoose.model('Course', courseSchema);
-
-module.exports = Course;
+module.exports = Course;//暴露模块

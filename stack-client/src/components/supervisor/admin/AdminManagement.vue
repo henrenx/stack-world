@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <a-row style="margin: 30px">
+  <a-row>
+    <a-row type="flex" justify="space-between" class="admin-header">
       <a-col :span="4">
         <a-select v-model="school" @change="changeInfo" style="width: 100%">
           <a-select-option
@@ -11,12 +11,29 @@
           >
         </a-select>
       </a-col>
-      <a-col :span="4" :push="18">
-        <a-button type="primary" @click="addAdmin" v-show="orgName"
-          >添加管理</a-button
-        >
+      <a-col :span="2">
+        <a-button type="primary" @click="addAdmin">添加管理</a-button>
       </a-col>
     </a-row>
+
+    <a-row class="admin-body">
+      <a-col :span="4" v-for="(item, index) in userInfoList" :key="index">
+        <a-card hoverable align="center">
+          <a-avatar :size="64" icon="user" src id="icon" />
+          <a-card-meta :description="item.name" class="card_info"></a-card-meta>
+          <a-card-meta :description="item.email"></a-card-meta>
+          <template slot="actions" class="ant-card-actions">
+            <a-button type="link" block @click="newPassword(item._id)"
+              >重置密码</a-button
+            >
+            <a-button type="link" block @click="changeActive(item._id)">{{
+              item.active ? "冻结管理" : "激活管理"
+            }}</a-button>
+          </template>
+        </a-card>
+      </a-col>
+    </a-row>
+
     <a-modal
       title="添加管理"
       :visible="visible"
@@ -29,6 +46,7 @@
         :rules="rules"
         :label-col="labelCol"
         :wrapper-col="wrapperCol"
+        labelAlign="left"
       >
         <a-form-model-item label="昵称" prop="name">
           <a-input
@@ -44,35 +62,13 @@
         </a-form-model-item>
       </a-form-model>
     </a-modal>
-    <a-row style="margin: 30px">
-      <a-col :span="6" v-for="(item, index) in userInfoList" :key="index">
-        <a-card
-          hoverable
-          style="
-            width: 300px;
-            margin-bottom: 10px;
-            justify-content: space-around;
-          "
-          align="center"
-        >
-          <a-avatar :size="64" icon="user" src id="icon" />
-          <a-card-meta :description="item.name" class="card_info"></a-card-meta>
-          <a-card-meta :description="item.email"></a-card-meta>
-          <template slot="actions" class="ant-card-actions">
-            <a-button type="link" block @click="newPassword(item._id)" 
-              >重置密码</a-button
-            >
-            <a-button type="link" block @click="changeActive(item._id)">{{
-              item.active ? "冻结管理" : "激活管理"
-            }}</a-button>
-          </template>
-        </a-card>
-      </a-col>
-    </a-row>
-  </div>
+  </a-row>
 </template>
+
 <script>
 import axios from "@/utils/axios";
+import { mapState } from "vuex";
+
 export default {
   data() {
     return {
@@ -80,28 +76,13 @@ export default {
       orgName: "",
       visible: false,
       confirmLoading: false,
-      labelCol: { span: 8 },
-      wrapperCol: { span: 10 },
+      labelCol: { span: 3 },
+      wrapperCol: { span: 14 },
       rules: {
-        name: [
-          {
-            required: true,
-            min: 1,
-            message: "昵称最少2个字",
-          },
-        ],
+        name: [{ required: true, message: "昵称不能为空" }],
         email: [{ required: true, message: "邮箱不能为空" }],
       },
-      addUserInfo: {
-        name: "",
-        email: "",
-      },
-      schoolList: [
-        {
-          schoolId: "snnu",
-          schoolName: "陕西师范大学",
-        },
-      ],
+      addUserInfo: { name: "", email: "" },
       userInfoList: [
         {
           _id: "123",
@@ -112,65 +93,25 @@ export default {
       ],
     };
   },
-  mounted() {
-    this.getSchool();
+  computed: {
+    ...mapState({
+      schoolList: (state) => {
+        const list = state.super.schoolList;
+        return list.map((item) => item.schoolName);
+      },
+    }),
   },
   methods: {
     newPassword(value) {
       console.log(value);
-      // let that=this;
-      // axios.("")
     },
     changeActive(value) {
       console.log(value);
     },
     changeInfo(value) {
-      // console.log(value);
-
-      let that = this;
-      this.userInfoList = [];
-      axios
-        .get("/pc/v1/users", {
-          params: {
-            org_name: value,
-            role: "orgAdmin",
-          },
-        })
-        .then(
-          function (res) {
-            console.log(res.data.data);
-            let data = res.data.data.users;
-            that.userInfoList = data;
-          },
-          function (err) {
-            console.log(err);
-          }
-        );
-      this.orgName = value;
+      console.log(value);
     },
-    getSchool() {
-      let that = this;
-      this.schoolList = [];
-      axios.get("/pc/v1/organizations").then(
-        function (res) {
-          // console.log(res);
-          let list = res.data.data.organizations;
-          // console.log(list);
-          for (var item of list) {
-            that.schoolList.push({
-              schoolId: item.id,
-              schoolName: item.organizationName,
-            });
-          }
-        },
-        function (err) {
-          console.log(err);
-        }
-      );
-      // console.log(this.$store.super);
-      // console.log(this.schoolList);
-    },
-
+    getSchool() {},
     addAdmin() {
       // console.log("addAdmin");
       this.visible = true;
@@ -179,7 +120,6 @@ export default {
       console.log("disabledAdmin");
       document.getElementById("icon").style.background = "#CCCCCC";
     },
-
     handleOk() {
       let that = this;
       let name = this.addUserInfo.name;
@@ -223,10 +163,25 @@ export default {
       this.visible = false;
     },
   },
+  mounted() {
+    if (!this.schoolList.length) {
+      this.$store.dispatch("super/getSchoolList");
+    }
+  },
 };
 </script>
 
-<style>
+<style scoped>
+.admin-header {
+  background: #fff;
+  padding: 15px 10px;
+  border-radius: 5px;
+}
+
+.admin-body {
+  padding: 15px 0;
+}
+
 .card_info {
   margin: 10px;
 }

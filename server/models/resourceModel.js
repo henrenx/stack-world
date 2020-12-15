@@ -1,45 +1,40 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const resourceSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'A resource must have a name'],
+    required: [true, "A resource must have a name"],
   },
   authorId: {
     type: String,
-    required: [true, 'A resource must have an authorId'],
-  },
-  type: {
-    type: String,
-    required: [true, 'A resource must have a resourceType'],
+    required: [true, "A resource must have an authorId"],
   },
   url: {
     type: String,
-    required: [true, 'A resource must have a rul'],
+    required: [true, "A resource must have a rul"],
   },
   duration: {
     type: Number,
-    required: [true, 'A resource must have a rul'],
+    required: [true, "A resource must have a rul"],
   },
   size: {
     type: Number,
-    required: [true, 'A resource must have a number'],
+    required: [true, "A resource must have a number"],
   },
   createTime: {
     type: Date,
-    required: [true, 'A resource must have a createTime'],
+    default: Date.now,
   },
-  tag: {
+  rsType: {
+    type: String,
+    required: [true, "A resource must have a resourceType"],
+    enum: ["mp4", "pdf", "doc", "jpeg", "jpg", "png", "docx"],
+  },
+  tags: {
     select: false,
-    type: [
-      {
-        chapterIndex: String,
-        courseId: String,
-        lessonIndex: String,
-      },
-    ],
+    type: Array,
   },
 });
 
-const Resource = mongoose.model('Resource', resourceSchema);
+const Resource = mongoose.model("Resource", resourceSchema);
 
 module.exports = Resource;

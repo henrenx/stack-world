@@ -1,6 +1,6 @@
-const express = require('express');
-const userController = require('../controller/userController');
-const authController = require('../controller/authController');
+const express = require("express");
+const userController = require("../controller/userController");
+const authController = require("../controller/authController");
 
 // const courseRouter = require('../routes/courseRoutes');
 
@@ -8,24 +8,41 @@ const router = express.Router({ mergeParams: true });
 
 // router.use('/:userId/courses', courseRouter);
 
-router.post('/signup', authController.signup);
-router.post('/login', authController.login);
+router.post("/signup", authController.signup);
+router.post("/login", authController.login);
+
+router.post("/forgotPassword", authController.forgotPassword);
+router.post("/resetPassword", authController.resetPassword);
 
 router.patch(
-  '/updateMe',
+  "/updateMe",
   userController.uploadUserPhoto,
   userController.updateMe
 );
 
 router
-  .route('/')
+  .route("/")
   .get(authController.protect, userController.getAllUsers)
   .post(userController.createUser);
+
+router.route("/admin").post(userController.createAdmin);
+router.route("/teacher").post(userController.createTeacher);
+router.route("/student").post(userController.createStudent);
+
 router
-  .route('/:id')
+  .route("/multipleUsers")
+  .get(userController.getOrgTeachers)
+  .post(userController.createMultipleUsers);
+
+router
+  .route("/:id")
   .get(userController.getUser)
   .patch(authController.protect, userController.updateUser)
   .delete(userController.deleteUser)
   .post(authController.protect, userController.updateUserRecords);
 
+router//edit by Chaos on 12-15 
+  .route("/getTeachersBySubOrgName")
+  .post(authController.protect,userController.getTeachersBySubOrgName);
+  
 module.exports = router;
