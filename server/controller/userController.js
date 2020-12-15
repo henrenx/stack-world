@@ -3,6 +3,7 @@ const User = require("./../models/userModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const multerStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -89,11 +90,22 @@ exports.createUser = catchAsync(async (req, res) => {
 
 exports.createMultipleUsers = catchAsync(async (req, res) => {
   const multipleUsers = req.body;
-
+  // const target = [];
+  const hashPassword = await bcrypt.hash(multipleUsers[0].password, 12);
+  multipleUsers.forEach((user) => {
+    // temp = { ...user, password: hashPassword, passwordConfirm: "" };
+    if (typeof user == "object") {
+      user["password"] = hashPassword;
+      user["passwordConfirm"] = hashPassword;
+    }
+    // target.push(temp);
+  });
+  console.log("++++++++");
+  console.log(multipleUsers);
   if (!multipleUsers || multipleUsers.length == 0) {
     return next(new AppError("用户列表为空或无数据", 404));
   }
-  const result = await User.insertMany(req.body);
+  const result = await User.insertMany(multipleUsers);
 
   res.status(201).json({
     status: "success",
@@ -137,7 +149,19 @@ exports.createAdmin = catchAsync(async (req, res) => {
     },
   });
 });
-
+exports.getTeachersBySubOrgName = catchAsync(async (req, res) => {
+  const data = await User.find({ subOrg_name:req.body.subOrg_name,role:'teacher'});
+    if (!data) {
+      return next(new AppError("该学院没有教师", 404));
+    }
+  
+    res.status(200).json({
+      status: "success",
+      data: {
+        data,
+      },
+    });
+});
 exports.createTeacher = catchAsync(async (req, res) => {
   // Allow nested routes
 

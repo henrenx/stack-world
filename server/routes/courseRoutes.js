@@ -1,23 +1,21 @@
 const express = require("express");
 const courseController = require("../controller/courseController");
-const authController = require("../controller/authController");
-// const reviewRouter = require('../routes/reviewRoutes');
-// const userRouter = require('../routes/userRoutes');
 
 const router = express.Router();
 
-// router.use('/:courseId/reviews', reviewRouter);
-// router.use('/:courseId/users', userRouter);
-
 router
   .route("/")
-  .get(authController.protect, courseController.getAllCourses)
-  .post(authController.protect, courseController.createCourse);
+  .get(courseController.getAllCourses)
+  .post(courseController.createCourse);
 
 router
-  .route("/:id")
-  .get(authController.protect, courseController.getCourse)
-  .patch(authController.protect, courseController.updateCourse)
-  .delete(authController.protect, courseController.deleteCourse);
+  .route("/batchOptCourses")
+  .delete(courseController.batchDeleteCourses)
+  .post(courseController.batchAddCourses);
+router
+  .route("/:_id")
+  .get(courseController.getCourse)
+  .delete(courseController.deleteOneCourse)
+  .post(courseController.updateCourse);
 
 module.exports = router;
