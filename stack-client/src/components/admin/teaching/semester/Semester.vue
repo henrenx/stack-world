@@ -156,11 +156,11 @@ export default {
       },
       currentNode: "1",
       formRules: {
-        addschoolYear: [{ required: true, message: "上课时间不能为空" }],
-        addsemester: [{ required: true, message: "下课时间不能为空" }],
-        addteachingWeek: [{ required: true, message: "上课时间不能为空" }],
-        addstartDate: [{ required: true, message: "上课时间不能为空" }],
-        addendDate: [{ required: true, message: "上课时间不能为空" }],
+        addschoolYear: [{ required: true, message: "学年不能为空" }],
+        addsemester: [{ required: true, message: "学期不能为空" }],
+        addteachingWeek: [{ required: true, message: "教学周不能为空" }],
+        addstartDate: [{ required: true, message: "开始日期不能为空" }],
+        addendDate: [{ required: true, message: "结束日期不能为空" }],
       },
       data,
       columns,
@@ -234,7 +234,6 @@ export default {
     },
     deleteit(index) {
       const that = this;
-      console.log(that.data[index - 1].id);
       axios
         .delete("pc/v1/schoolyear/deleteSchoolYear", {
           params: { _id: that.data[index - 1].id },
@@ -246,7 +245,6 @@ export default {
               .get("pc/v1/schoolyear/getAllSchoolYear")
               .then(({ data }) => {
                 const { status, schoolYears } = data;
-                console.log(data);
                 if (!status) {
                   return;
                 }
@@ -306,9 +304,7 @@ export default {
       axios
         .post(url, requestData)
         .then(({ data }) => {
-          console.log(data);
           const { status, message } = data;
-          console.log(message);
           if (!status) {
             that.$message.error(message);
             return;
