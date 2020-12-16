@@ -15,13 +15,12 @@
         <a-button @click="addMajorVisible = true" type="primary">
           + 专业
         </a-button>
-        <a-button @click="edit" type="primary">编辑</a-button>
-        <a-button @click="removeVisible = true" type="primary">删除</a-button>
+        <!-- <a-button @click="edit" type="primary">编辑</a-button> -->
+        <a-button @click="showDeleteConfirm" type="primary">删除</a-button>
       </a-button-group>
     </div>
 
     <!-- Dialog Begin -->
-
     <a-modal
       v-model="addCollegeVisible"
       :title="editVisible ? '编辑学院' : '添加学院'"
@@ -62,6 +61,12 @@
         :wrapper-col="wrapperCol"
         :rules="formRules"
       >
+        <a-form-model-item label="学院名称" prop="subOrgName">
+          <a-input
+            placeholder="请输入学院名称"
+            v-model="addMajorForm.subOrgName"
+          ></a-input>
+        </a-form-model-item>
         <a-form-model-item label="专业名称" prop="majorName">
           <a-input
             placeholder="请输入专业名称"
@@ -86,13 +91,15 @@
 <script>
 import { treeNodeTiles } from "@/utils/antComponent";
 import axios from "@/utils/axios";
-import errHandler from "@/utils/errorHandler";
-import { mapState } from 'vuex'
+// import errHandler from "@/utils/errorHandler";
+import { mapMutations, mapState } from "vuex";
 
 export default {
   name: "InstitutionTree",
   data() {
     return {
+      title: "",
+      selectedKeys: "",
       treeData: [
         {
           title: "陕西师范大学",
@@ -119,17 +126,19 @@ export default {
       },
       addMajorVisible: false,
       addMajorForm: {
+        subOrgName: "",
         majorName: "",
         majorDesc: "",
         startDate: "",
       },
       editVisible: false,
-      removeVisible: false,
+      // removeVisible: false,
       currentNode: "1",
       formRules: {
         collegeName: [{ required: true, min: 3, message: "学院名称最少3个字" }],
         collegeDesc: [{ required: true, message: "学院简介不能为空" }],
-        majorName: [{ required: true, min: 3, message: "专业名称最少2个字" }],
+        subOrgName: [{ required: true, min: 3, message: "学院名称最少3个字" }],
+        majorName: [{ required: true, min: 3, message: "专业名称最少3个字" }],
         majorDesc: [{ required: true, message: "专业简介不能为空" }],
         startDate: [{ required: true, message: "开办时间不能为空" }],
       },
@@ -137,10 +146,131 @@ export default {
   },
   computed: {
     ...mapState({
-      sid: state => state.sid
-    })
+      sid: (state) => state.public.sid,
+      oid: (state) => state.public.oid,
+      subOrgId: (state) => state.admin.subOrgId,
+      schoolInfo: (state) => state.admin.schoolInfo,
+    }),
+    ...mapMutations({}),
+  },
+  mounted() {
+    this.getTreeData();
   },
   methods: {
+    showDeleteConfirm() {
+      let that = this;
+      this.$confirm({
+        title: "您确定要删除吗?",
+        okText: "确定",
+        okType: "danger",
+        cancelText: "取消",
+        onOk() {
+          // console.log("OK");
+          // console.log(that.selectedKeys);
+          // console.log(that.schoolInfo);
+          let slk = that.selectedKeys[0];
+          // console.log(i, j, k);
+          if (slk.split("-")[2] === undefined) {
+            // console.log("okk");
+            let url = `pc/v1/organizations/${that.oid}/suborgs`;
+            // console.log(url);
+
+            let subOrgName = that.schoolInfo[slk.split("-")[1] - 1].subOrgName;
+            // console.log(subOrgName);
+            axios
+              .delete(url, {
+                data: {
+                  subOrgName: subOrgName,
+                },
+              })
+              .then(
+                function (res) {
+                  console.log(res);
+                },
+                function (err) {
+                  console.log(err);
+                }
+              );
+          } else {
+            // console.log("okk");
+            let subOrgId = that.schoolInfo[slk.split("-")[1] - 1]._id;
+            // console.log(subOrgId);
+            let url = `pc/v1/organizations/${that.oid}/suborgs/${subOrgId}`;
+            // console.log(url);
+            let subOrgName = that.schoolInfo[slk.split("-")[1] - 1].subOrgName;
+            // console.log(subOrgName);
+            let majorName =
+              that.schoolInfo[slk.split("-")[1] - 1].majors[
+                slk.split("-")[2] - 1
+              ].majorName;
+            // console.log(majorName);
+            axios
+              .delete(url, {
+                data: {
+                  subOrgName,
+                  majorName,
+                },
+              })
+              .then(
+                function (res) {
+                  console.log(res);
+                },
+                function (err) {
+                  console.log(err);
+                }
+              );
+          }
+        },
+        onCancel() {
+          console.log("Cancel");
+        },
+      });
+    },
+    getTreeData() {
+      let that = this;
+      this.treeData = [];
+      // console.log(this.oid);
+      const url = `/pc/v1/organizations/${this.oid}`;
+      // const url="/pc/v1/organizations/5facabb2cf3bb2002b4b3f38"
+      axios.get(url).then(
+        function (res) {
+          // console.log(res);
+          const data = res.data.data.organization;
+          // console.log(data);
+          let treeData = [];
+          // console.log(data.data);
+          treeData.push({
+            title: data.organizationName,
+            key: "1",
+            children: [],
+          });
+          let subOrgs = data.subOrgs;
+          that.$store.commit("admin/getSchoolInfo", subOrgs);
+          // console.log(subOrgs);
+          for (let i = 0; i < subOrgs.length; i++) {
+            // console.log(subOrgs[i]);
+            treeData[0].children.push({
+              title: subOrgs[i].subOrgName,
+              key: `1-${i + 1}`,
+              children: [],
+            });
+            let majors = subOrgs[i].majors;
+            for (let j = 0; j < majors.length; j++) {
+              treeData[0].children[i].children.push({
+                title: majors[j].majorName,
+                key: `1-${i + 1}-${j + 1}`,
+                children: [],
+                isLeaf: true,
+              });
+            }
+          }
+          that.treeData = treeData;
+        },
+        function (err) {
+          console.log(err);
+        }
+      );
+    },
     onLoadData(treeNode) {
       return new Promise((resolve) => {
         if (treeNode.dataRef.children) {
@@ -159,28 +289,72 @@ export default {
         // }, 1000);
       });
     },
-    onSelect([selectedKey]) {
-      this.currentNode = selectedKey;
-      if (treeNodeTiles(selectedKey) === 3) {
-        // college id <= selectedKey
-        // to request class data by college id;
+    onSelect(selectedKeys, info) {
+      // console.log("onSelect", info);
+      this.selectedKeys = selectedKeys;
+      // console.log(selectedKeys[0].split("-")[0],selectedKeys[0].split("-")[1],selectedKeys[0].split("-")[2]);
+      this.title = info.selectedNodes[0].data.props.dataRef.title;
+      // console.log(major)；
+      let that = this;
+      if (selectedKeys[0].split("-")[2] === undefined) {
+        this.$store.commit("admin/getSubOrgId", this.title);
+      } else {
+        axios
+          .get(`pc/v1/classes`, {
+            params: {
+              major: this.title,
+            },
+          })
+          .then(
+            function (res) {
+              // console.log(res);
+              let data = res.data.data.classes;
+              // console.log(data);
+              that.$store.commit("admin/getClassTable", data);
+            },
+            function (err) {
+              console.log(err);
+            }
+          );
       }
     },
     onChange() {},
-    addCollege() {},
-    addMajor() {
+    addCollege() {
       const { collegeName, collegeDesc } = this.addCollegeForm;
       const requestData = {
         subOrgName: collegeName,
-        subOrgIntro: collegeDesc
+        subOrgIntro: collegeDesc,
       };
-      const url = `pc/v1/organizations/${this.sid}/suborgs`;
-      axios.post(url, requestData )
-      .then(({data}) => {
-        console.log(data);
-      })
-      .catch(errHandler.call(this));
-
+      // const url = `pc/v1/organizations/${this.sid}/suborgs`;
+      const url = `pc/v1/organizations/${this.oid}/suborgs`;
+      axios.post(url, requestData).then(
+        function (res) {
+          console.log(res);
+        },
+        function (err) {
+          console.log(err);
+        }
+      );
+      this.addCollegeVisible = false;
+    },
+    addMajor() {
+      const { subOrgName, majorName, majorDesc, startDate } = this.addMajorForm;
+      let data = {
+        subOrgName: subOrgName,
+        majorName: majorName,
+        majorIntro: majorDesc,
+        startDate: startDate,
+      };
+      const url = `pc/v1/organizations/${this.oid}/suborgs/${this.subOrgId}`;
+      axios.post(url, data).then(
+        function (res) {
+          console.log(res);
+        },
+        function (err) {
+          console.log(err);
+        }
+      );
+      this.addMajorVisible = false;
     },
     edit() {
       const nodeTile = treeNodeTiles(this.currentNode);

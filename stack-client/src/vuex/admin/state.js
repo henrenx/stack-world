@@ -5,7 +5,9 @@ const state = {
     cid: "",
     mid: "",
     temp: false,
-    classTable: []
+    classTable: [],
+    schoolInfo:[],
+    subOrgId:''
 };
 
 export default state;
