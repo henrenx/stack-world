@@ -10,11 +10,13 @@
       </a-col>
       <a-col :span="14"></a-col>
       <a-col :span="6" class="btn">
-        <a-button type="primary">禁用</a-button>
-        <a-button type="primary">启用</a-button>
+        <!-- <a-button type="primary">禁用</a-button> -->
+        <!-- <a-button type="primary">启用</a-button> -->
         <a-button type="primary">注册</a-button>
-        <a-button type="primary">批量注册</a-button>
-        <a-button type="primary">批量删除</a-button>
+        <a-button type="primary" @click="batchAddVisible = true">
+          批量注册
+        </a-button>
+        <!-- <a-button type="primary">批量删除</a-button> -->
       </a-col>
     </a-row>
 
@@ -47,11 +49,16 @@
         </template>
       </a-table>
     </a-row>
+
+    <batch-add-teacher :visible.sync="batchAddVisible" />
   </div>
 </template>
 
 <script>
+import BatchAddTeacher from "./BatchAddTeacher";
+
 export default {
+  components: { BatchAddTeacher },
   data() {
     const columns = [
       {
@@ -120,13 +127,14 @@ export default {
           state: true,
         },
       ],
+      batchAddVisible: false
     };
   },
   methods: {
     onSelectChange(keys) {
       this.selectedTeachers = keys;
     },
-    onSearch() {},
+    onSearch() { },
     deleteTeacher(record) {
       console.log(record);
     },
