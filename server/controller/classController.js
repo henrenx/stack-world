@@ -43,15 +43,15 @@ exports.createClass = catchAsync(async (req, res, next) => {
 });
 
 exports.getClass = catchAsync(async (req, res, next) => {
-  console.log("getClass 进来啦");
+  //console.log("getClass 进来啦");
 
-  const classEntity = await Class.findById(req.params.id);
-
+  const classEntity = await Class.findOne({_id:req.params.id})
+  .populate('students','user_id name -_id');
   if (!classEntity) {
     return next(new AppError("该课程不存在", 404));
   }
 
-  console.log(classEntity);
+  //console.log(classEntity);
   res.status(200).json({
     status: "success",
     data: {
@@ -69,7 +69,7 @@ exports.updateClass = catchAsync(async (req, res, next) => {
     return next(new AppError("该班级不存在", 404));
   }
   res.status(200).json({
-    status: "scccess",
+    status: "success",
     data: {
       classEntity,
     },
@@ -84,7 +84,7 @@ exports.deleteClass = catchAsync(async (req, res, next) => {
   }
 
   res.status(204).json({
-    status: "scccess",
+    status: "success",
     data: null,
   });
 });
@@ -149,7 +149,7 @@ exports.updateStudents = catchAsync(async (req, res, next) => {
     return next(new AppError("更新班级学生列表信息出错", 404));
   }
   res.status(200).json({
-    status: "scccess",
+    status: "success",
     data: {
       students: result.students,
     },
@@ -178,7 +178,7 @@ exports.deleteStudents = catchAsync(async (req, res, next) => {
   }
 
   res.status(204).json({
-    status: "scccess",
+    status: "success",
     data: classEntity,
   });
 });
@@ -248,7 +248,7 @@ exports.deleteMultipleCourseTimeTable = catchAsync(async (req, res, next) => {
   }
 
   res.status(204).json({
-    status: "scccess",
+    status: "success",
     data: classEntity.curriculum,
   });
 });
@@ -268,6 +268,34 @@ exports.getCurriculum = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       curriculum: classEntity.curriculum,
+    },
+  });
+});
+//edit by Chaos on 12-15
+exports.getClassesBySubOrgName = catchAsync(async (req, res, next) => {
+  const data = await Class.find({ subOrg_name:req.body.subOrg_name});
+  if (!data) {
+    return next(new AppError("班级不存在", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      data,
+    },
+  });
+});
+//edit by Chaos on 12-15
+exports.getClassesByMajorName = catchAsync(async (req, res, next) => {
+  const data = await Class.find({ major_name:req.body.major_name});
+  if (!data) {
+    return next(new AppError("班级不存在", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      data,
     },
   });
 });

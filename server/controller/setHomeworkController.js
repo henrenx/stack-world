@@ -14,14 +14,11 @@ exports.getAllSetHomework = catchAsync(async (req, res, next) => {
     /\b(gte|gt|lte|le)\b/g,
     (match) => `$${match}`
   );
-  // console.log(queryString);
-  const query = SetHomework.find(JSON.parse(queryString)).select(
-    "teacherId courseId courseTimes content "
-  );
-  // console.log(query);
-  // EXECUTE QUERY
+ 
+  const query = SetHomework.find(JSON.parse(queryString))
+  //.select("_id lesson_id number_of_time content ");
+
   const setHomework = await query;
-  // console.log(courses);
 
   // SEND RESPONSE
   res.status(200).json({
@@ -69,7 +66,7 @@ exports.updateSetHomework = catchAsync(async (req, res, next) => {
     return next(new AppError("该作业布置不存在", 404));
   }
   res.status(200).json({
-    status: "scccess",
+    status: "success",
     data: {
       setHomework,
     },
@@ -84,7 +81,7 @@ exports.deleteSetHomework = catchAsync(async (req, res, next) => {
   }
 
   res.status(204).json({
-    status: "scccess",
+    status: "success",
     data: null,
   });
 });

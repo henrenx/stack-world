@@ -62,7 +62,7 @@ exports.getCourse = catchAsync(async (req, res, next) => {
 exports.createCourse = catchAsync(async (req, res, next) => {
   const newCourse = await Course.create(req.body);
   res.status(201).json({
-    status: 'scccess',
+    status: 'success',
     data: newCourse,
   });
 });
@@ -76,7 +76,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     return next(new AppError('该课程不存在', 404));
   }
   res.status(200).json({
-    status: 'scccess',
+    status: 'success',
     data: {
       course,
     },
@@ -90,7 +90,7 @@ exports.deleteCourse = catchAsync(async (req, res, next) => {
   }
 
   res.status(204).json({
-    status: 'scccess',
+    status: 'success',
     data: null,
   });
 });

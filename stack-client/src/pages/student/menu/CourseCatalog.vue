@@ -1,15 +1,18 @@
 <template>
-  <a-row :gutter="[8, 8]">
-    <a-col :span="12" :key="item.id" v-for="item in courseList">
-      <course-card :item="item" style="color: #fff"></course-card>
-    </a-col>
-  </a-row>
+  <div>
+    <a-empty v-if='courseList.length==0' />
+    <a-row v-else :gutter="[8, 8]">
+      <a-col :span="12" :key="item.id" v-for="item in courseList">
+        <course-card :item="item" style="color: #fff;"></course-card>
+      </a-col>
+    </a-row>
+  </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
 
-import courseCard from "@/components/student/cards/CourseCard.vue";
+import courseCard from "../../../components/student/CourseCard.vue";
 
 export default {
   name: "CourseCatalog",
@@ -25,15 +28,10 @@ export default {
     //     this.$router.push({ path: item.route,query: { title: item.name } });
     // }
   },
-  created: function () {
-      console.log(this.$store);
-  },
+  created: function() {},
   computed: {
     ...mapState({
-      courseList: (state) => {
-        console.log(state);
-        return "state.student.courseList;"
-      },
+      courseList: (state) => state.student.courseList,
     }),
   },
 };

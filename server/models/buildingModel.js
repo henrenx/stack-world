@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const uuid = require("uuid");
 
 const buildingSchema = new mongoose.Schema(
-  {
+  { 
     _id: {
       type: String,
       required: [true, "you must tell us your building id"],

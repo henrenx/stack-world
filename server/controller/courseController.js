@@ -3,23 +3,41 @@ const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 
 exports.getAllCourses = catchAsync(async (req, res) => {
-  try {
-    course = await Course.find();
-    res.status(200).json({
-      status: true,
-      course
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: true,
-      err
-    });
-  }
+  // BUILD QUERY
+  // 1) Filtering
+  const queryObj = { ...req.query };
+  const excludedFields = ["page", "sort", "limit", "fields"];
+  excludedFields.forEach((el) => delete queryObj[el]);
+
+  // 2) Advanced filtering
+  let queryString = JSON.stringify(queryObj);
+  queryString = queryString.replace(
+    /\b(gte|gt|lte|le)\b/g,
+    (match) => `$${match}`
+  );
+  // console.log(queryString);
+  const query = Course.find(JSON.parse(queryString));
+  // console.log(query);
+  // EXECUTE QUERY
+  const courses = await query;
+  // console.log(courses);
+
+  // SEND RESPONSE
+  res.status(200).json({
+    status: "success",
+    resulrs: courses.length,
+    data: {
+      courses,
+    },
+  });
 });
 
+/**
+ * 创建一门课程，首先根据课程号+学校名称判断数据库中是否已存在
+ */
 exports.createCourse = catchAsync(async (req, res) => {
   try {
-    var course = await Course.findOne({ _id: req.body._id });
+    var course = await Course.findOne({course_id:req.body.course_id,org_name:req.body.org_name });
     if (course) {
       res.status(200).json({
         status: false,
@@ -44,7 +62,7 @@ exports.createCourse = catchAsync(async (req, res) => {
 exports.batchAddCourses = catchAsync(async (req, res) => {
   try {
     var courses = req.body.courses;
-    await Course.insertMany(courses,{ordered:false});
+    await Course.insertMany(courses, { ordered: false });
     res.status(200).json({
       status: true
     });
@@ -130,29 +148,29 @@ exports.getCourse = catchAsync(async (req, res) => {
 });
 //edit by Chaos on 12-15
 exports.getCoursesBySubOrgName = catchAsync(async (req, res, next) => {
-    const data = await course.find({ subOrg_name:req.body.subOrg_name});
-    if (!data) {
-      return next(new AppError("课程不存在", 404));
+  const data = await course.find({ subOrg_name: req.body.subOrg_name });
+  if (!data) {
+    return next(new AppError("课程不存在", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      data
     }
-  
-    res.status(200).json({
-      status: "success",
-      data: {
-        data,
-      },
-    });
   });
+});
 //edit by Chaos on 12-15
-  exports.getCoursesByMajorName = catchAsync(async (req, res, next) => {
-    const data = await course.find({ major_name:req.body.major_name});
-    if (!data) {
-      return next(new AppError("课程不存在", 404));
+exports.getCoursesByMajorName = catchAsync(async (req, res, next) => {
+  const data = await course.find({ major_name: req.body.major_name });
+  if (!data) {
+    return next(new AppError("课程不存在", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      data
     }
-  
-    res.status(200).json({
-      status: "success",
-      data: {
-        data,
-      },
-    });
   });
+});

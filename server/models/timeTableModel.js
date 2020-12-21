@@ -15,6 +15,7 @@ const timeTableSchema = new mongoose.Schema(
     lesson_id: {
       type: mongoose.Schema.Types.String,
       ref: "Lesson",
+      unique: true,
     },
     teacher_id: {
       type: mongoose.Schema.Types.String, //type: mongoose.Schema.Types.ObjectID,
@@ -47,6 +48,8 @@ const timeTableSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.String, //type: mongoose.Schema.Types.ObjectID,
           ref: "Class",
         },
+        class_name:{type: String, 
+          required: true,}
       },
     ],
   },

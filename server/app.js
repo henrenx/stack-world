@@ -1,7 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-const catchAsync = require("./utils/catchAsync");
 const AppError = require("./utils/appError");
 // const { redisClient, redisPublisher } = require("./dbsSetup");
 
@@ -18,8 +17,12 @@ app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
-app.use(cors());
-
+app.use(
+  cors({
+    origin: ["http://localhost:8080"],
+    methods: ["GET", "HEAD", "OPTIONS", "POST"],
+  })
+);
 // 3) ROUTES
 const courseRouter = require("./routes/courseRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -31,7 +34,7 @@ const activityRouter = require("./routes/liveActivityRoutes");
 const prepareLessonRouter = require("./routes/prepareRoutes");
 const lessonRouter = require("./routes/lessonRoutes");
 const schoolYearRouter = require("./routes/schoolYearRoutes");
-
+const timeTableRouter = require("./routes/timeTableRoutes");
 
 app.use("/pc/v1/courses", courseRouter);
 app.use("/pc/v1/users", userRouter);
@@ -40,19 +43,19 @@ app.use("/pc/v1/classes", classRouter);
 app.use("/pc/v1/devices", deviceRouter);
 app.use("/pc/v1/resources", resourceRouter);
 app.use("/pc/v1/activities", activityRouter);
-app.use("/pc/v1/prepare", prepareLessonRouter);
-app.use("/pc/v1/lesson", lessonRouter);
+app.use("/pc/v1/prepares", prepareLessonRouter);
+app.use("/pc/v1/lessons", lessonRouter);
+app.use("/pc/v1/schoolyears", schoolYearRouter);
+app.use("/pc/v1/timetables", timeTableRouter);
 
 //ChengNuo
 const campusRouter = require("./routes/campusRoutes");
 const buildingRouter = require("./routes/buildingRouter");
 const roomRouter = require("./routes/roomRoutes");
-const timeTableRouter = require("./routes/timeTableRoutes");
 
 app.use("/pc/v1/campus", campusRouter);
 app.use("/pc/v1/building", buildingRouter);
 app.use("/pc/v1/rooms", roomRouter);
-app.use("/pc/v1/timetable", timeTableRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
